@@ -6,13 +6,16 @@ import { PostModule } from './post/post.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ComentModule } from './coment/coment.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-
+import { User } from './user/entities/user.entity';
+import { Coment } from './coment/entities/coment.entity';
+import { Post } from './post/entities/post.entity';
 @Module({
   imports: [
     UserModule,
     PostModule,
     ComentModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forFeature([User, Post, Coment]),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -30,5 +33,4 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   controllers: [AppController],
   providers: [AppService],
 })
-
 export class AppModule {}

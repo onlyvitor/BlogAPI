@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { statusPost } from '../post.status';
@@ -19,14 +20,17 @@ export class Post {
   @Column('text')
   content: string;
 
-  @Column()
-  type: 'enum';
-  enum: statusPost;
-  default: statusPost.DRAFT;
+  @Column({
+    type: 'enum',
+    enum: statusPost,
+    default: statusPost.DRAFT,
+  })
+  status: statusPost;
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'authorID' })
+  @ManyToOne(() => User, (user) => user.posts)
+  @JoinColumn({ name: 'authorId' })
   author: User;
+
   @CreateDateColumn()
   createdAt: Date;
 }

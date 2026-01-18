@@ -1,7 +1,10 @@
+import { Post } from 'src/post/entities/post.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -10,11 +13,9 @@ export class Coment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  postId: number;
-
-  @Column()
-  authorId: number;
+  @ManyToOne(() => Post)
+  @JoinColumn({ name: 'postId' })
+  post: Post;
 
   @Column()
   content: string;
