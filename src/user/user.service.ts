@@ -53,6 +53,10 @@ export class UserService {
     return user;
   }
 
+  async findByEmail(email: string) {
+    return this.userRepo.findOne({ where: { email } });
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.userRepo.preload({ id, ...updateUserDto });
 

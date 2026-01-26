@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from './user/entities/user.entity';
 import { Coment } from './coment/entities/coment.entity';
 import { Post } from './post/entities/post.entity';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     UserModule,
@@ -29,6 +30,7 @@ import { Post } from './post/entities/post.entity';
         synchronize: true, // só em DEV
       }),
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
