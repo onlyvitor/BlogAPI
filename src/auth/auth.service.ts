@@ -7,7 +7,7 @@ import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -28,11 +28,30 @@ export class AuthService {
     const jwt = await this.jwtService.signAsync({ id: user.id });
     res.cookie('jwt', jwt, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24,
     });
 
     return { message: 'Successfully logged in' };
+  }
+
+  async verifyToken(token: string) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const payload = await this.jwtService.verifyAsync(token);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return payload;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+
+  async getUserFromToken(token: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const payload = await this.verifyToken(token);
+    const user = await this.userService.findOne(payload.id);
+    return user;
   }
 }
