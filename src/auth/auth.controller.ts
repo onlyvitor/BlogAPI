@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import * as express from 'express';
@@ -17,10 +25,15 @@ export class AuthController {
   @Get('profile')
   async getProfile(@Req() req: express.Request) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const cookies = req.cookies['jwt'];
-    const data = this.authService.verifyToken(cookies);
-    const user = await this.authService.getUserFromToken(cookies);
-    return { user, data: data };
+    const token = req.cookies['jwt'];
+    if (!token) {
+      throw new UnauthorizedException('No token provided');
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const data = await this.authService.verifyToken(token);
+    const user = await this.authService.getUserFromToken(token);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    return { user, data };
   }
 
   @Post('logout')
