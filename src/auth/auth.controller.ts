@@ -22,4 +22,9 @@ export class AuthController {
     const user = await this.authService.getUserFromToken(cookies);
     return { user, data: data };
   }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: express.Response) {
+    return this.authService.signOut(res);
+  }
 }

@@ -54,4 +54,13 @@ export class AuthService {
     const user = await this.userService.findOne(payload.id);
     return user;
   }
+
+  signOut(res: Response) {
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    });
+    return { message: 'Successfully logged out' };
+  }
 }
