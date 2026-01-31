@@ -7,7 +7,7 @@ import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -62,5 +62,10 @@ export class AuthService {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     });
     return { message: 'Successfully logged out' };
+  }
+
+  async getUserIdFromToken(token: string) {
+    const user = await this.getUserFromToken(token);
+    return user.id;
   }
 }
