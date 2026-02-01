@@ -149,8 +149,6 @@ Response (200): sets cookie `jwt` (httpOnly)
 | PATCH  | `/user/:id` | Atualiza usuário (parcial)                              |     Não      |
 | DELETE | `/user/:id` | Remove usuário                                          |     Não      |
 
-> **Nota de segurança:** atualmente a entidade `User` inclui `passwordHash`; **evite** expor `passwordHash` em responses. Recomendado adicionar serialization (ex: `@Exclude()` ou DTOs) para remover esse campo.
-
 ---
 
 ### Post
@@ -222,8 +220,6 @@ Erros usam o padrão do NestJS (HTTP Exceptions). Exemplos:
   "error": "Bad Request"
 }
 ```
-
-> **Melhoria sugerida:** padronizar ainda mais a resposta (ex.: `{ code, message, details }`) e centralizar com um Global Exception Filter para consistência e rastreabilidade em logs.
 
 ---
 
