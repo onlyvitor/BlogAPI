@@ -1,5 +1,6 @@
 import { Post } from 'src/post/entities/post.entity';
 import { Coment } from 'src/coment/entities/coment.entity';
+import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -19,6 +20,8 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  @Exclude()
   @Column()
   passwordHash: string;
 

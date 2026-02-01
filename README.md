@@ -1,98 +1,284 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Blog API (NestJS) ✅
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST para um Blog construída com NestJS e TypeScript. Implementa autenticação via JWT armazenado em cookie httpOnly, gerenciamento de usuários, posts com status (DRAFT / PUBLISHED), autorização por autor, tratamento de erros consistente e práticas REST modernas.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Stack principal 🔧
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Linguagem:** TypeScript (Node.js)
+- **Framework:** NestJS
+- **Banco de dados:** PostgreSQL
+- **ORM:** TypeORM
+- **Autenticação:** JWT (via cookie httpOnly) com `@nestjs/jwt` + `cookie-parser`
+- **Validação:** `class-validator`
+- **Hash de senha:** `bcrypt`
+- **Testes:** Jest + Supertest
 
-## Project setup
+---
 
-```bash
-$ npm install
+## Visão geral da arquitetura & decisões técnicas 💡
+
+- Projeto modular com separação por domínio (Auth, User, Post, Comment).
+- JWT como token de acesso guardado em **cookie httpOnly** (nome: `jwt`) — evita exposição em JavaScript; cookie configurado com `Secure`/`SameSite` condicional em produção.
+- TypeORM com `synchronize: true` para desenvolvimento (não recomendado em produção). Em produção usar migrations e CI/CD.
+- Autorização implementada por checagens no serviço de domínio (ex.: somente o autor pode editar/deletar um post) — claro, poderíamos extrair Guards/Policies para escalar.
+- Tratamento de erros usando exceções do Nest (`NotFoundException`, `ForbiddenException`, `UnauthorizedException`) — resposta consistente para clientes.
+- CORS habilitado para `http://localhost:4200` com `credentials: true` para suportar cookies.
+
+---
+
+## Como rodar localmente 🚀
+
+### Pré-requisitos
+
+- Node.js (>= 18)
+- npm ou yarn
+- PostgreSQL
+
+### Variáveis de ambiente (exemplo `.env`)
+
+```
+# servidor
+PORT=3000
+NODE_ENV=development
+
+# jwt
+JWT_SECRET=uma_chave_super_secreta
+
+# postgres
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=postgres
+DB_NAME=blogdb
 ```
 
-## Compile and run the project
+> **⚠️ Produção:** defina `NODE_ENV=production`, desative `synchronize` em TypeORM e use migrations.
+
+### Instalação e execução
 
 ```bash
-# development
-$ npm run start
+# instalar dependências
+npm install
 
-# watch mode
-$ npm run start:dev
+# rodar em modo dev (watch)
+npm run start:dev
 
-# production mode
-$ npm run start:prod
+# build para produção
+npm run build
+npm run start:prod
+
+# testes
+npm run test
+npm run test:e2e
 ```
 
-## Run tests
+---
+
+## Fluxo de autenticação (JWT + cookie) 🔐
+
+1. O cliente envia as credenciais (email + password) para `POST /auth/login`.
+2. Se as credenciais são válidas, o servidor gera um **JWT** (expira em 1h) e o envia em um cookie `jwt` com `HttpOnly` e `Secure` (em produção).
+3. Em requests subsequentes, o cookie é automaticamente enviado pelo navegador; o servidor valida o token para identificar o usuário.
+4. Logout: `POST /auth/logout` limpa o cookie.
+
+> **Observação:** em ambientes com front-end separado, habilitar `credentials: true` no fetch/axios e configurar `SameSite`/`Secure` conforme produção.
+
+---
+
+## Modelos principais (resumido) 🧾
+
+### User
+
+- **id**: number
+- **username**: string (único)
+- **email**: string (único)
+- **passwordHash**: string (armazenado, não expor em responses)
+- **createdAt**: Date
+
+### Post
+
+- **id**: number
+- **title**: string
+- **content**: string (text)
+- **status**: enum (`draft` | `published`)
+- **author**: User (relação ManyToOne)
+- **createdAt**: Date
+
+---
+
+## Endpoints (documentação por recurso) 📚
+
+> Observação: Endpoints que requerem autenticação esperam o cookie `jwt` enviado automaticamente.
+
+### Auth
+
+| Método |            Rota | Descrição                                               |    Autenticação    |
+| ------ | --------------: | ------------------------------------------------------- | :----------------: |
+| POST   |   `/auth/login` | Faz login com `{ email, password }` e seta cookie `jwt` |        Não         |
+| POST   |  `/auth/logout` | Limpa o cookie `jwt`                                    |        Não         |
+| GET    | `/auth/profile` | Retorna `{ user, data }` (payload do token + user)      | Sim (cookie `jwt`) |
+
+Exemplo: POST /auth/login
+
+Request:
+
+```json
+{
+  "email": "alice@example.com",
+  "password": "senha_segura"
+}
+```
+
+Response (200): sets cookie `jwt` (httpOnly)
+
+```json
+{ "message": "Successfully logged in" }
+```
+
+---
+
+### User
+
+| Método |        Rota | Descrição                                               | Autenticação |
+| ------ | ----------: | ------------------------------------------------------- | :----------: |
+| POST   |     `/user` | Registra novo usuário (`username`, `email`, `password`) |     Não      |
+| GET    |     `/user` | Lista usuários                                          |     Não      |
+| GET    | `/user/:id` | Recupera usuário por id                                 |     Não      |
+| PATCH  | `/user/:id` | Atualiza usuário (parcial)                              |     Não      |
+| DELETE | `/user/:id` | Remove usuário                                          |     Não      |
+
+> **Nota de segurança:** atualmente a entidade `User` inclui `passwordHash`; **evite** expor `passwordHash` em responses. Recomendado adicionar serialization (ex: `@Exclude()` ou DTOs) para remover esse campo.
+
+---
+
+### Post
+
+| Método |        Rota | Descrição                                                                 | Autenticação |
+| ------ | ----------: | ------------------------------------------------------------------------- | :----------: |
+| POST   |     `/post` | Cria post (campos: `title`, `content`) — atribuído ao usuário autenticado |     Sim      |
+| GET    |     `/post` | Lista posts **publicados** (`status = published`)                         |     Não      |
+| GET    | `/post/:id` | Recupera post publicado por id                                            |     Não      |
+| PATCH  | `/post/:id` | Atualiza post (inclui `status` para publicar) — somente autor             |     Sim      |
+| DELETE | `/post/:id` | Remove post — somente autor                                               |     Sim      |
+
+Exemplo: Atualizar status para publicar
+
+Request PATCH `/post/1`
+
+```json
+{
+  "status": "published"
+}
+```
+
+Response (200): objeto do post atualizado
+
+---
+
+### Comment (coment)
+
+| Método |               Rota | Descrição                               | Autenticação |
+| ------ | -----------------: | --------------------------------------- | :----------: |
+| POST   | `/comment/:postId` | Cria comentário em post                 |     Sim      |
+| GET    |         `/comment` | Lista comentários (requer autenticação) |     Sim      |
+| GET    |     `/comment/:id` | Recupera comentário                     |     Sim      |
+| PATCH  |     `/comment/:id` | Atualiza comentário — somente autor     |     Sim      |
+| DELETE |     `/comment/:id` | Remove comentário — somente autor       |     Sim      |
+
+---
+
+## Padrão de erros da API ⚠️
+
+Erros usam o padrão do NestJS (HTTP Exceptions). Exemplos:
+
+- Not Found (404)
+
+```json
+{
+  "statusCode": 404,
+  "message": "Post with id 1 not found",
+  "error": "Not Found"
+}
+```
+
+- Unauthorized (401)
+
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized",
+  "error": "Unauthorized"
+}
+```
+
+- Bad Request (400)
+
+```json
+{
+  "statusCode": 400,
+  "message": "User alredy exists",
+  "error": "Bad Request"
+}
+```
+
+> **Melhoria sugerida:** padronizar ainda mais a resposta (ex.: `{ code, message, details }`) e centralizar com um Global Exception Filter para consistência e rastreabilidade em logs.
+
+---
+
+## Exemplos de uso (curl) 🧪
+
+Login:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+curl -i -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"alice@example.com","password":"senha_segura"}' \
+  -c cookies.txt
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Obter profile (enviar cookie):
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+curl -i http://localhost:3000/auth/profile -b cookies.txt
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Criar post (autenticado):
 
-## Resources
+```bash
+curl -i -X POST http://localhost:3000/post \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Meu post","content":"Conteúdo"}' \
+  -b cookies.txt
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Boas práticas aplicadas
 
-## Support
+- Recursos RESTful e verbos HTTP corretos
+- Uso de DTOs + `class-validator` para validação de entrada
+- Autorização aplicada no serviço de domínio (somente autor altera/removem)
+- Cookies httpOnly para reduzir risco de XSS
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+## Melhoria e roadmap (futuro) ✨
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Remover `passwordHash` das respostas serializando entidades ou usando DTOs de saída
+- Suporte a refresh tokens ou estratégia segura de expiração
+- Adicionar paginação e filtros (limit/offset, por autor, por status)
+- Migrations e pipeline de deploy com rollback
+- Rate limiting, logging estruturado (ex: Winston/pino), observability
+- Testes de integração mais completos e coverage para caminhos de erro
 
-## License
+---
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Contato / Contribuição
+
+Contribuições são bem-vindas. Abra issues/PRs com descrição clara do problema e testes quando aplicável.
+
+---
+
+**Status:** pronto para uso local / base para produção com configurações e hardening adicionais.
