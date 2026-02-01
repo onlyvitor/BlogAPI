@@ -1,4 +1,5 @@
 import { Post } from 'src/post/entities/post.entity';
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -16,6 +17,10 @@ export class Coment {
   @ManyToOne(() => Post)
   @JoinColumn({ name: 'postId' })
   post: Post;
+
+  @ManyToOne(() => User, (user) => user.coments)
+  @JoinColumn({ name: 'authorId' })
+  author: User;
 
   @Column()
   content: string;

@@ -51,6 +51,7 @@ export class AuthService {
   async getUserFromToken(token: string) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const payload = await this.verifyToken(token);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const user = await this.userService.findOne(payload.id);
     return user;
   }
@@ -67,5 +68,14 @@ export class AuthService {
   async getUserIdFromToken(token: string) {
     const user = await this.getUserFromToken(token);
     return user.id;
+  }
+
+  isLoggedIn(token: string) {
+    try {
+      void this.verifyToken(token);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

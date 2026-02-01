@@ -28,7 +28,8 @@ export class PostController {
     @Req() req: express.Request,
   ) {
     const token = String(req.cookies['jwt']);
-    if (!token) {
+    const isLoggedIn = this.authService.isLoggedIn(token);
+    if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }
     const user = await this.authService.getUserFromToken(token);
@@ -52,7 +53,8 @@ export class PostController {
     @Req() req: express.Request,
   ) {
     const token = String(req.cookies['jwt']);
-    if (!token) {
+    const isLoggedIn = this.authService.isLoggedIn(token);
+    if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }
     const userId = this.authService.getUserIdFromToken(token);
@@ -62,7 +64,8 @@ export class PostController {
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: express.Request) {
     const token = String(req.cookies['jwt']);
-    if (!token) {
+    const isLoggedIn = this.authService.isLoggedIn(token);
+    if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }
     const userId = this.authService.getUserIdFromToken(token);

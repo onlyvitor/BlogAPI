@@ -1,4 +1,5 @@
 import { Post } from 'src/post/entities/post.entity';
+import { Coment } from 'src/coment/entities/coment.entity';
 import {
   Column,
   CreateDateColumn,
@@ -23,6 +24,9 @@ export class User {
 
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
+
+  @OneToMany(() => Coment, (coment) => coment.author)
+  coments: Coment[];
 
   @CreateDateColumn()
   createdAt: Date;
