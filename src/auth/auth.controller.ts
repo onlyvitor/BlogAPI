@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Post,
   Req,
   Res,
@@ -15,6 +16,7 @@ import * as express from 'express';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('login')
+  @HttpCode(200)
   login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: express.Response,
@@ -37,6 +39,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @HttpCode(200)
   logout(@Res({ passthrough: true }) res: express.Response) {
     return this.authService.signOut(res);
   }
