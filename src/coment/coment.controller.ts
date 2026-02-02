@@ -28,7 +28,7 @@ export class ComentController {
     @Body() createComentDto: CreateComentDto,
     @Req() req: express.Request,
   ) {
-    const token = String(req.cookies['jwt']);
+    const token = req.cookies?.['jwt'];
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -42,7 +42,7 @@ export class ComentController {
 
   @Get()
   async findAll(@Req() req: express.Request) {
-    const token = String(req.cookies['jwt']);
+    const token = req.cookies?.['jwt'];
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -55,7 +55,7 @@ export class ComentController {
 
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: express.Request) {
-    const token = String(req.cookies['jwt']);
+    const token = req.cookies?.['jwt'];
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -72,7 +72,7 @@ export class ComentController {
     @Body() updateComentDto: UpdateComentDto,
     @Req() req: express.Request,
   ) {
-    const token = String(req.cookies['jwt']);
+    const token = req.cookies?.['jwt'];
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -86,7 +86,7 @@ export class ComentController {
 
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: express.Request) {
-    const token = String(req.cookies['jwt']);
+    const token = req.cookies?.['jwt'];
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }

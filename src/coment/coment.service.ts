@@ -37,28 +37,28 @@ export class ComentService {
   }
 
   async findOne(id: number) {
-    const comment = await this.comentRepo.findOne({
+    const coment = await this.comentRepo.findOne({
       where: { id },
       relations: ['author', 'post'],
     });
 
-    if (!comment) {
+    if (!coment) {
       throw new NotFoundException(`Coment with id ${id} not found`);
     }
-    return comment;
+    return coment;
   }
 
   async update(id: number, updateComentDto: UpdateComentDto, user: User) {
-    const comment = await this.comentRepo.findOne({
+    const coment = await this.comentRepo.findOne({
       where: { id },
       relations: ['author'],
     });
 
-    if (!comment) {
+    if (!coment) {
       throw new NotFoundException(`Coment with id ${id} not found`);
     }
 
-    if (comment.author?.id !== user.id) {
+    if (coment.author?.id !== user.id) {
       throw new ForbiddenException('Você não é o autor deste comentário');
     }
 
@@ -67,16 +67,16 @@ export class ComentService {
   }
 
   async remove(id: number, user: User) {
-    const comment = await this.comentRepo.findOne({
+    const coment = await this.comentRepo.findOne({
       where: { id },
       relations: ['author'],
     });
 
-    if (!comment) {
+    if (!coment) {
       throw new NotFoundException(`Coment with id ${id} not found`);
     }
 
-    if (comment.author?.id !== user.id) {
+    if (coment.author?.id !== user.id) {
       throw new ForbiddenException('Você não é o autor deste comentário');
     }
 
