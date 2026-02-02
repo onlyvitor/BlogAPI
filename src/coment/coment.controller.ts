@@ -29,7 +29,10 @@ export class ComentController {
     @Req() req: express.Request,
   ) {
     const token = String(req.cookies['jwt']);
-    const isLoggedIn = this.authService.isLoggedIn(token);
+    if (!token) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+    const isLoggedIn = await this.authService.isLoggedIn(token);
     if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -38,9 +41,12 @@ export class ComentController {
   }
 
   @Get()
-  findAll(@Req() req: express.Request) {
+  async findAll(@Req() req: express.Request) {
     const token = String(req.cookies['jwt']);
-    const isLoggedIn = this.authService.isLoggedIn(token);
+    if (!token) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+    const isLoggedIn = await this.authService.isLoggedIn(token);
     if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -48,9 +54,12 @@ export class ComentController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: express.Request) {
+  async findOne(@Param('id') id: string, @Req() req: express.Request) {
     const token = String(req.cookies['jwt']);
-    const isLoggedIn = this.authService.isLoggedIn(token);
+    if (!token) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+    const isLoggedIn = await this.authService.isLoggedIn(token);
     if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -64,7 +73,10 @@ export class ComentController {
     @Req() req: express.Request,
   ) {
     const token = String(req.cookies['jwt']);
-    const isLoggedIn = this.authService.isLoggedIn(token);
+    if (!token) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+    const isLoggedIn = await this.authService.isLoggedIn(token);
     if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -75,7 +87,10 @@ export class ComentController {
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: express.Request) {
     const token = String(req.cookies['jwt']);
-    const isLoggedIn = this.authService.isLoggedIn(token);
+    if (!token) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+    const isLoggedIn = await this.authService.isLoggedIn(token);
     if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }

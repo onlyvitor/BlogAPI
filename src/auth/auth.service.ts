@@ -70,9 +70,9 @@ export class AuthService {
     return user.id;
   }
 
-  isLoggedIn(token: string) {
+  async isLoggedIn(token: string) {
     try {
-      void this.verifyToken(token);
+      await this.verifyToken(token);
       return true;
     } catch {
       return false;
