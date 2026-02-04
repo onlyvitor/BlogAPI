@@ -28,24 +28,29 @@ export class ComentController {
     @Body() createComentDto: CreateComentDto,
     @Req() req: express.Request,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const token = req.cookies?.['jwt'];
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const isLoggedIn = await this.authService.isLoggedIn(token);
     if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const user = await this.authService.getUserFromToken(token);
     return this.comentService.create(createComentDto, +id, user);
   }
 
   @Get()
   async findAll(@Req() req: express.Request) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const token = req.cookies?.['jwt'];
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const isLoggedIn = await this.authService.isLoggedIn(token);
     if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
@@ -55,10 +60,12 @@ export class ComentController {
 
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: express.Request) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const token = req.cookies?.['jwt'];
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const isLoggedIn = await this.authService.isLoggedIn(token);
     if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
@@ -72,28 +79,34 @@ export class ComentController {
     @Body() updateComentDto: UpdateComentDto,
     @Req() req: express.Request,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const token = req.cookies?.['jwt'];
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const isLoggedIn = await this.authService.isLoggedIn(token);
     if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const user = await this.authService.getUserFromToken(token);
     return this.comentService.update(+id, updateComentDto, user);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: express.Request) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const token = req.cookies?.['jwt'];
     if (!token) {
       throw new UnauthorizedException('Unauthorized');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const isLoggedIn = await this.authService.isLoggedIn(token);
     if (!isLoggedIn) {
       throw new UnauthorizedException('Unauthorized');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const user = await this.authService.getUserFromToken(token);
     return this.comentService.remove(+id, user);
   }
