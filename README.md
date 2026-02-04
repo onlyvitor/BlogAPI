@@ -54,6 +54,47 @@ DB_PASS=postgres
 DB_NAME=blogdb
 ```
 
+## Docker 🐳
+
+### Usando Docker Compose (recomendado)
+
+O projeto inclui configuração Docker para facilitar o desenvolvimento. O Docker Compose sobe a API e o banco PostgreSQL automaticamente.
+
+#### Pré-requisitos
+- Docker
+- Docker Compose
+
+#### Executar com Docker
+
+```bash
+# Subir a aplicação e o banco de dados
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
+
+# Parar os containers
+docker-compose down
+
+# Parar e remover volumes (limpa banco de dados)
+docker-compose down -v
+A API estará disponível em http://localhost:3000 e o PostgreSQL na porta 5432.
+Variáveis de ambiente para Docker
+Crie um arquivo .env na raiz do projeto (use .env.example como base):
+# servidor
+PORT=3000
+NODE_ENV=development
+
+# jwt
+JWT_SECRET=uma_chave_super_secreta
+
+# postgres (usar nome do serviço docker como host)
+DB_HOST=postgres
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=postgres
+DB_NAME=blogdb
+
 > **⚠️ Produção:** defina `NODE_ENV=production`, desative `synchronize` em TypeORM e use migrations.
 
 ### Instalação e execução
